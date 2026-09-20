@@ -1,0 +1,13 @@
+PROJECT: PlacePrep, a placement tracker and prep planner for students.
+STACK: Next.js (App Router) + React + TypeScript + Tailwind CSS, MongoDB + Mongoose, NextAuth, dnd-kit, Recharts, deployed on Vercel.
+
+RULES:
+- Write everything from scratch. Keep code simple and readable, with short comments for non-obvious logic.
+- When changing an existing file, rewrite the whole file cleanly instead of patching it. Never leave old lines behind.
+- Never leave duplicate imports, duplicate component or function definitions, or server-only code (like getServerSession) inside "use client" files.
+- Validate all inputs on the server and check ownership on every query so users only access their own data.
+- Never read, print or commit .env files or secrets.
+- Do not run git commit or git push. I make commits myself.
+- Do not change working code from earlier phases unless necessary, and tell me if you do.
+- After every task, run `npx tsc --noEmit` and `npm run build`, fix all errors, and only then report the task as complete.
+- After each phase, give me: what was built in 3-4 lines, exact manual test steps, 3 interview questions I could be asked about it, and suggested git commit messages. Then stop and wait for my approval.

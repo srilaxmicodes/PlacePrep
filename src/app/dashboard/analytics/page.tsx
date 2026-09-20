@@ -6,6 +6,8 @@ import ReadinessCard from "@/components/analytics/ReadinessCard";
 import StreakCard from "@/components/analytics/StreakCard";
 import FunnelCard from "@/components/analytics/FunnelCard";
 import SkillGapCard from "@/components/analytics/SkillGapCard";
+import CategoryCompletionChart from "@/components/charts/CategoryCompletionChart";
+import CompanyReadinessChart from "@/components/charts/CompanyReadinessChart";
 import { BarChart3, RefreshCw, AlertCircle, ArrowRight } from "lucide-react";
 
 export default function AnalyticsDashboardPage() {
@@ -146,6 +148,12 @@ export default function AnalyticsDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <FunnelCard funnel={data.funnel} />
         <SkillGapCard topGaps={data.topGlobalGaps} />
+      </div>
+
+      {/* Grid Row 3: Category Completion & Company Readiness Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CategoryCompletionChart data={data.categoryStats || []} />
+        <CompanyReadinessChart data={data.companyReadiness || []} />
       </div>
 
       {/* Company Readiness Table */}
