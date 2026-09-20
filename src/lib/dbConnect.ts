@@ -23,11 +23,7 @@ if (!MONGODB_URI) {
 }
 
 // Retrieve cached connection from NodeJS global object if available
-let cached = global.mongooseCache;
-
-if (!cached) {
-  cached = global.mongooseCache = { conn: null, promise: null };
-}
+const cached: MongooseCache = global.mongooseCache || (global.mongooseCache = { conn: null, promise: null });
 
 /**
  * Connects to MongoDB database with connection caching.
@@ -59,4 +55,3 @@ export async function dbConnect(): Promise<typeof mongoose> {
 }
 
 export default dbConnect;
-
