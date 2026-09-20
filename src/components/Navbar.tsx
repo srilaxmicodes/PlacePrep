@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { LogOut, LayoutDashboard, Kanban as KanbanIcon, BookOpen, MessageSquareText, BarChart3 } from "lucide-react";
+import { LogOut, LayoutDashboard, Kanban as KanbanIcon, BookOpen, MessageSquareText, BarChart3, FileText } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -15,6 +15,7 @@ export default function Navbar() {
     { href: "/dashboard/planner", label: "Prep Planner", icon: BookOpen },
     { href: "/dashboard/logs", label: "Interview Logs", icon: MessageSquareText },
     { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+    { href: "/dashboard/resume", label: "Resume", icon: FileText },
   ];
 
   return (
@@ -30,7 +31,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Nav links */}
+        {/* Nav links (desktop) */}
         {session && (
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
@@ -93,7 +94,30 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Nav links (mobile): scrollable row under the header */}
+      {session && (
+        <nav className="md:hidden flex items-center gap-1 overflow-x-auto px-4 pb-2">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
     </header>
   );
 }
-
