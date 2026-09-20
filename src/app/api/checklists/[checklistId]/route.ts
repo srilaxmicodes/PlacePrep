@@ -12,7 +12,7 @@ import PrepActivity from "@/models/PrepActivity";
  */
 export async function PUT(
   request: Request,
-  { params }: { params: { checklistId: string } }
+  { params }: { params: Promise<{ checklistId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,7 +23,7 @@ export async function PUT(
       );
     }
 
-    const { checklistId } = params;
+    const { checklistId } = await params;
     const body = await request.json();
 
     await dbConnect();
@@ -91,7 +91,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { checklistId: string } }
+  { params }: { params: Promise<{ checklistId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -102,7 +102,7 @@ export async function DELETE(
       );
     }
 
-    const { checklistId } = params;
+    const { checklistId } = await params;
 
     await dbConnect();
 
@@ -130,4 +130,3 @@ export async function DELETE(
     );
   }
 }
-

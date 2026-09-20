@@ -13,7 +13,7 @@ const VALID_OUTCOMES: RoundOutcome[] = ["Pending", "Cleared", "Rejected"];
  */
 export async function PUT(
   request: Request,
-  { params }: { params: { logId: string } }
+  { params }: { params: Promise<{ logId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -24,7 +24,7 @@ export async function PUT(
       );
     }
 
-    const { logId } = params;
+    const { logId } = await params;
     const body = await request.json();
 
     await dbConnect();
@@ -89,7 +89,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { logId: string } }
+  { params }: { params: Promise<{ logId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -100,7 +100,7 @@ export async function DELETE(
       );
     }
 
-    const { logId } = params;
+    const { logId } = await params;
 
     await dbConnect();
 

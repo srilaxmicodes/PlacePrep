@@ -14,7 +14,7 @@ const VALID_OUTCOMES: RoundOutcome[] = ["Pending", "Cleared", "Rejected"];
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -25,7 +25,7 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     await dbConnect();
 
@@ -63,7 +63,7 @@ export async function GET(
  */
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -74,7 +74,7 @@ export async function POST(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { roundName, date, questionsAsked, difficulty, outcome, lessonsLearned } = body;
 
@@ -141,4 +141,3 @@ export async function POST(
     );
   }
 }
-
