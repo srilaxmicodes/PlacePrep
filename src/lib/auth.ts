@@ -75,10 +75,19 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    // Attach user ID to JWT token
-    async jwt({ token, user }) {
+    // Attach the MongoDB user id to the JWT token
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
+        if (account?.provider === "google" && user.email) {
+          // Google's own id is not a valid MongoDB ObjectId, so look up our user
+          await dbConnect();
+          const dbUser = await User.findOne({ email: user.email.toLowerCase() });
+          if (dbUser) {
+            token.id = dbUser._id.toString();
+          }
+        } else {
+          token.id = user.id;
+        }
       }
       return token;
     },
@@ -96,4 +105,3 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
-
