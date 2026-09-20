@@ -41,10 +41,12 @@ export async function GET(request: Request) {
       query.stage = stage;
     }
 
-    if (search) {
+       if (search) {
+      // Escape special regex characters so user input is treated as plain text
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       query.$or = [
-        { company: { $regex: search, $options: "i" } },
-        { role: { $regex: search, $options: "i" } },
+        { company: { $regex: escaped, $options: "i" } },
+        { role: { $regex: escaped, $options: "i" } },
       ];
     }
 

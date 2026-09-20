@@ -43,18 +43,20 @@ export async function PUT(
 
     const previousCompleted = item.completed;
 
-    if (typeof body.completed === "boolean") {
+       if (typeof body.completed === "boolean") {
       item.completed = body.completed;
       if (body.completed) {
-        item.completedAt = new Date();
+        // Only count activity when the topic goes from not done to done
+        if (!previousCompleted) {
+          item.completedAt = new Date();
 
-        // Increment today's daily prep activity count for streak & readiness calculation
-        const todayStr = new Date().toISOString().split("T")[0];
-        await PrepActivity.findOneAndUpdate(
-          { userId: session.user.id, date: todayStr },
-          { $inc: { count: 1 } },
-          { upsert: true, new: true }
-        );
+          const todayStr = new Date().toISOString().split("T")[0];
+          await PrepActivity.findOneAndUpdate(
+            { userId: session.user.id, date: todayStr },
+            { $inc: { count: 1 } },
+            { upsert: true, new: true }
+          );
+        }
       } else {
         item.completedAt = undefined;
       }
