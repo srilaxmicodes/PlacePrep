@@ -107,33 +107,67 @@ ${jobDescription || "(none provided)"}
 RESUME:
 ${resumeText}`;
 
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  let raw = "";
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0.2 },
-        }),
-      }
-    );
-    if (!res.ok) {
-      console.error("Gemini error status:", res.status);
-      return NextResponse.json(
-        { error: "The AI service returned an error. Check the model name or your quota." },
-        { status: 502 }
+    // Try the configured model first, then fall back to others if Google is busy
+  const models = Array.from(
+    new Set([
+      process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      "gemini-flash-latest",
+      "gemini-flash-lite-latest",
+    ])
+  );
+
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const callGemini = async (model: string) => {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: "application/json", temperature: 0.2 },
+          }),
+        }
       );
+      if (res.ok) {
+        const json = await res.json();
+        return { status: 200, text: json?.candidates?.[0]?.content?.parts?.[0]?.text || "" };
+      }
+      const errText = await res.text();
+      console.error(`Gemini ${model} status:`, res.status, errText.slice(0, 300));
+      return { status: res.status, text: "" };
+    } catch {
+      return { status: 0, text: "" };
     }
-    const json = await res.json();
-    raw = json?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  } catch {
-    return NextResponse.json({ error: "Could not reach the AI service." }, { status: 502 });
+  };
+
+  let raw = "";
+  let lastStatus = 0;
+
+  for (const model of models) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const result = await callGemini(model);
+      lastStatus = result.status;
+      if (result.status === 200) {
+        raw = result.text;
+        break;
+      }
+      // Key problems will not fix themselves; a missing model should skip to the next one
+      if ([400, 401, 403, 404].includes(result.status)) break;
+      await sleep(1500); // busy (429/500/503): wait, then retry
+    }
+    if (raw || [400, 401, 403].includes(lastStatus)) break;
   }
 
+  if (!raw) {
+    const message =
+      lastStatus === 503 || lastStatus === 429
+        ? "The AI service is busy right now. Please try again in a minute."
+        : "The AI service returned an error. Check the model name, API key or quota.";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
   // 5. Parse and sanitize the response
   try {
     const cleaned = raw.replace(/```json|```/g, "").trim();
