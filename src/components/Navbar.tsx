@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { LogOut, LayoutDashboard, Kanban as KanbanIcon, BookOpen, MessageSquareText } from "lucide-react";
+import { LogOut, LayoutDashboard, Kanban as KanbanIcon, BookOpen, MessageSquareText, BarChart3 } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -14,6 +14,7 @@ export default function Navbar() {
     { href: "/dashboard/applications", label: "Applications", icon: KanbanIcon },
     { href: "/dashboard/planner", label: "Prep Planner", icon: BookOpen },
     { href: "/dashboard/logs", label: "Interview Logs", icon: MessageSquareText },
+    { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   ];
 
   return (
